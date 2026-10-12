@@ -37,7 +37,8 @@ foreach ($line in (Get-Content $PLAN -Encoding UTF8)) {
   if ($line -match "^### (.+)$") { $inTopics = $false; $topic = $matches[1].Trim(); continue }
   if ($line -match "^\|\s*(MAIN|ADV|REAL)\s*\|") {
     $cells = $line.Trim().Trim("|").Split("|") | ForEach-Object { $_.Trim() }
-    $rowDeck = $cells[0]; $slides = $cells[1]; $code = $cells[3].Replace('`', '').Replace('\|', '|')
+    # code is the last cell: an escaped \| in "Slide content" would otherwise shift it
+    $rowDeck = $cells[0]; $slides = $cells[1]; $code = $cells[-1].Replace('`', '')
     if ($code -eq "" -or $code.StartsWith([string]$EM)) { $code = $CONCEPT }
     $slides = [regex]::Replace($slides, "\(=[^)]*\)", "")
     foreach ($part in $slides.Split(";")) {
@@ -174,7 +175,7 @@ while ($p.Slides.Count -gt 0) { $p.Slides.Item(1).Delete() }
 $sl = $p.Slides.AddSlide(1, (Layout $p "Title Slide")); Set-White $sl
 $sl.Shapes.Placeholders.Item(1).TextFrame.TextRange.Text = "PGP $ND Agentic AI"
 $sl.Shapes.Placeholders.Item(2).TextFrame.TextRange.Text = "Sessions 1 $ND 9  |  08:00 $ND 11:00 AM`rAtul Kahate"
-Add-Note $sl "Demo paths on every slide are relative to the repo root c:\code\agenticai."
+Add-Note $sl "Demo paths on every slide are relative to 16_PGP-Agentic\code (one folder per session; see code\README.md)."
 
 # Contents slide
 $sl = $p.Slides.AddSlide(2, (Layout $p "Title Only")); Set-White $sl
